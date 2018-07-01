@@ -20,16 +20,16 @@ public class Explode : MonoBehaviour {
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.tag == "Fire")
-		{
-			if ((int)Random.Range(0, 100) >= 90)
-			{
-				TmpMoreBomb = Instantiate(MoreBomb, transform.position, Quaternion.Euler(180, 180, 0)) as GameObject;
-				TmpMoreBomb.transform.position += new Vector3(0, 0.5f, -0.5f);
-			}
-			Destroy(gameObject);
-		}
-		if (other.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Wall")
+        {
+            if ((int)Random.Range(0, 100) >= 0)
+            {
+                TmpMoreBomb = Instantiate(MoreBomb, other.gameObject.transform.position, Quaternion.Euler(180, 180, 0)) as GameObject;
+                TmpMoreBomb.transform.position += new Vector3(0, 0.5f, -0.5f);
+            }
+            Destroy(other.gameObject);
+        }
+        if (other.gameObject.tag == "Player")
 		{
 			Destroy(other.gameObject);
 		}

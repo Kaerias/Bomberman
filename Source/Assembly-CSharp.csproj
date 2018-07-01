@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\DetectObject.cs" />
     <Compile Include="Assets\Scripts\Explode.cs" />
     <Compile Include="Assets\Scripts\GameBoard.cs" />
+    <Compile Include="Assets\Scripts\Menu.cs" />
     <Compile Include="Assets\Scripts\PlayerNbr.cs" />
     <Compile Include="Assets\Scripts\PutBomb.cs" />
     <Reference Include="UnityEditor.StandardEvents">
