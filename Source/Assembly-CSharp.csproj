@@ -67,10 +67,13 @@
     <Compile Include="Assets\Assets bomberman\Supercyan Character Pack Free Sample\Scripts\SimpleCharacterControl_p2.cs" />
     <Compile Include="Assets\Scripts\Bomb.cs" />
     <Compile Include="Assets\Scripts\BombUp.cs" />
+    <Compile Include="Assets\Scripts\Button.cs" />
     <Compile Include="Assets\Scripts\DetectObject.cs" />
+    <Compile Include="Assets\Scripts\EndGame.cs" />
     <Compile Include="Assets\Scripts\Explode.cs" />
     <Compile Include="Assets\Scripts\GameBoard.cs" />
     <Compile Include="Assets\Scripts\Menu.cs" />
+    <Compile Include="Assets\Scripts\Pause.cs" />
     <Compile Include="Assets\Scripts\PlayerNbr.cs" />
     <Compile Include="Assets\Scripts\PutBomb.cs" />
     <Reference Include="UnityEditor.StandardEvents">
