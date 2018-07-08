@@ -1,192 +1,213 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class SimpleCharacterControl : MonoBehaviour {
+public class SimpleCharacterControl : MonoBehaviour
+{
 
-    private enum ControlMode
-    {
-        Tank,
-        Direct
-    }
+	private enum ControlMode
+	{
+		Tank,
+		Direct
+	}
 
-    [SerializeField] private float m_moveSpeed = 2;
-    [SerializeField] private float m_turnSpeed = 200;
-    [SerializeField] private float m_jumpForce = 4;
-    [SerializeField] private Animator m_animator;
-    [SerializeField] private Rigidbody m_rigidBody;
+	[SerializeField] private float m_moveSpeed = 2;
+	[SerializeField] private float m_turnSpeed = 200;
+	[SerializeField] private float m_jumpForce = 4;
+	[SerializeField] private Animator m_animator;
+	[SerializeField] private Rigidbody m_rigidBody;
 
-    [SerializeField] private ControlMode m_controlMode = ControlMode.Direct;
+	[SerializeField] private ControlMode m_controlMode = ControlMode.Direct;
 
-    private float m_currentV = 0;
-    private float m_currentH = 0;
+	private bool action = false;
+	private float m_currentV = 0;
+	private float m_currentH = 0;
 
-    private readonly float m_interpolation = 10;
-    private readonly float m_walkScale = 0.33f;
-    private readonly float m_backwardsWalkScale = 0.16f;
-    private readonly float m_backwardRunScale = 0.66f;
+	private readonly float m_interpolation = 10;
+	private readonly float m_walkScale = 0.33f;
+	private readonly float m_backwardsWalkScale = 0.16f;
+	private readonly float m_backwardRunScale = 0.66f;
 
-    private bool m_wasGrounded;
-    private Vector3 m_currentDirection = Vector3.zero;
+	private bool m_wasGrounded;
+	private Vector3 m_currentDirection = Vector3.zero;
 
-    private float m_jumpTimeStamp = 0;
-    private float m_minJumpInterval = 0.25f;
+	private float m_jumpTimeStamp = 0;
+	private float m_minJumpInterval = 0.25f;
 
-    private bool m_isGrounded;
-    private List<Collider> m_collisions = new List<Collider>();
+	private bool m_isGrounded;
+	private List<Collider> m_collisions = new List<Collider>();
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        ContactPoint[] contactPoints = collision.contacts;
-        for(int i = 0; i < contactPoints.Length; i++)
-        {
-            if (Vector3.Dot(contactPoints[i].normal, Vector3.up) > 0.5f)
-            {
-                if (!m_collisions.Contains(collision.collider)) {
-                    m_collisions.Add(collision.collider);
-                }
-                m_isGrounded = true;
-            }
-        }
-    }
+	private void OnCollisionEnter(Collision collision)
+	{
+		ContactPoint[] contactPoints = collision.contacts;
+		for (int i = 0; i < contactPoints.Length; i++)
+		{
+			if (Vector3.Dot(contactPoints[i].normal, Vector3.up) > 0.5f)
+			{
+				if (!m_collisions.Contains(collision.collider))
+				{
+					m_collisions.Add(collision.collider);
+				}
+				m_isGrounded = true;
+			}
+		}
+	}
 
-    private void OnCollisionStay(Collision collision)
-    {
-        ContactPoint[] contactPoints = collision.contacts;
-        bool validSurfaceNormal = false;
-        for (int i = 0; i < contactPoints.Length; i++)
-        {
-            if (Vector3.Dot(contactPoints[i].normal, Vector3.up) > 0.5f)
-            {
-                validSurfaceNormal = true; break;
-            }
-        }
+	private void OnCollisionStay(Collision collision)
+	{
+		ContactPoint[] contactPoints = collision.contacts;
+		bool validSurfaceNormal = false;
+		for (int i = 0; i < contactPoints.Length; i++)
+		{
+			if (Vector3.Dot(contactPoints[i].normal, Vector3.up) > 0.5f)
+			{
+				validSurfaceNormal = true; break;
+			}
+		}
 
-        if(validSurfaceNormal)
-        {
-            m_isGrounded = true;
-            if (!m_collisions.Contains(collision.collider))
-            {
-                m_collisions.Add(collision.collider);
-            }
-        } else
-        {
-            if (m_collisions.Contains(collision.collider))
-            {
-                m_collisions.Remove(collision.collider);
-            }
-            if (m_collisions.Count == 0) { m_isGrounded = false; }
-        }
-    }
+		if (validSurfaceNormal)
+		{
+			m_isGrounded = true;
+			if (!m_collisions.Contains(collision.collider))
+			{
+				m_collisions.Add(collision.collider);
+			}
+		}
+		else
+		{
+			if (m_collisions.Contains(collision.collider))
+			{
+				m_collisions.Remove(collision.collider);
+			}
+			if (m_collisions.Count == 0) { m_isGrounded = false; }
+		}
+	}
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if(m_collisions.Contains(collision.collider))
-        {
-            m_collisions.Remove(collision.collider);
-        }
-        if (m_collisions.Count == 0) { m_isGrounded = false; }
-    }
+	private void OnCollisionExit(Collision collision)
+	{
+		if (m_collisions.Contains(collision.collider))
+		{
+			m_collisions.Remove(collision.collider);
+		}
+		if (m_collisions.Count == 0) { m_isGrounded = false; }
+	}
 
-	void Update () {
-        m_animator.SetBool("Grounded", m_isGrounded);
+	void Update()
+	{
+		m_animator.SetBool("Grounded", m_isGrounded);
 
-        switch(m_controlMode)
-        {
-            case ControlMode.Direct:
-                DirectUpdate();
-                break;
+		switch (m_controlMode)
+		{
+			case ControlMode.Direct:
+				DirectUpdate();
+				break;
 
-            case ControlMode.Tank:
-                TankUpdate();
-                break;
+			case ControlMode.Tank:
+				TankUpdate();
+				break;
 
-            default:
-                Debug.LogError("Unsupported state");
-                break;
-        }
+			default:
+				Debug.LogError("Unsupported state");
+				break;
+		}
 
-        m_wasGrounded = m_isGrounded;
-    }
+		m_wasGrounded = m_isGrounded;
+	}
 
-    private void TankUpdate()
-    {
-        float v = Input.GetAxis("Vertical_p2");
-        float h = Input.GetAxis("Horizontal_p2");
+	private void TankUpdate()
+	{
+		float v = Input.GetAxis("Vertical_p2") * Time.deltaTime * 3.0f;
+		float h = Input.GetAxis("Horizontal_p2") * Time.deltaTime * 3.0f;
 
-        bool walk = Input.GetKey(KeyCode.LeftShift);
+		bool walk = Input.GetKey(KeyCode.LeftShift);
 
-        if (v < 0) {
-            if (walk) { v *= m_backwardsWalkScale; }
-            else { v *= m_backwardRunScale; }
-        } else if(walk)
-        {
-            v *= m_walkScale;
-        }
+		if (v < 0)
+		{
+			if (walk) { v *= m_backwardsWalkScale; }
+			else { v *= m_backwardRunScale; }
+		}
+		else if (walk)
+		{
+			v *= m_walkScale;
+		}
 
-        m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
-        m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
+		m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
+		m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-        transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
-        transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
+		transform.Translate(m_currentH, 0, m_currentV);
+		if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.J) || Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.L) || action)
+		{
+			/*if (Input.GetKeyDown(KeyCode.I))
+				transform.rotation = Quaternion.Euler(0, 0, 0);
+			if (Input.GetKeyDown(KeyCode.K))
+				transform.rotation = Quaternion.Euler(0, 180, 0);
+			if (Input.GetKeyDown(KeyCode.J))
+				transform.rotation = Quaternion.Euler(0, 270, 0);
+			if (Input.GetKeyDown(KeyCode.L))
+				transform.rotation = Quaternion.Euler(0, 90, 0);
+			*/
+			action = true;
+			m_animator.SetFloat("MoveSpeed", 1);
+		}
+		if (Input.GetKeyUp(KeyCode.I) || Input.GetKeyUp(KeyCode.J) || Input.GetKeyUp(KeyCode.K) || Input.GetKeyUp(KeyCode.L))
+		{
+			action = false;
+			m_animator.SetFloat("MoveSpeed", 0);
+		}
+	}
 
-        m_animator.SetFloat("MoveSpeed", m_currentV);
+	private void DirectUpdate()
+	{
+		float v = Input.GetAxis("Vertical_p2");
+		float h = Input.GetAxis("Horizontal_p2");
 
-        JumpingAndLanding();
-    }
+		Transform camera = Camera.main.transform;
 
-    private void DirectUpdate()
-    {
-        float v = Input.GetAxis("Vertical_p2");
-        float h = Input.GetAxis("Horizontal_p2");
+		if (Input.GetKey(KeyCode.LeftShift))
+		{
+			v *= m_walkScale;
+			h *= m_walkScale;
+		}
 
-        Transform camera = Camera.main.transform;
+		m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
+		m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            v *= m_walkScale;
-            h *= m_walkScale;
-        }
+		Vector3 direction = camera.forward * m_currentV + camera.right * m_currentH;
 
-        m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
-        m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
+		float directionLength = direction.magnitude;
+		direction.y = 0;
+		direction = direction.normalized * directionLength;
 
-        Vector3 direction = camera.forward * m_currentV + camera.right * m_currentH;
+		if (direction != Vector3.zero)
+		{
+			m_currentDirection = Vector3.Slerp(m_currentDirection, direction, Time.deltaTime * m_interpolation);
 
-        float directionLength = direction.magnitude;
-        direction.y = 0;
-        direction = direction.normalized * directionLength;
+			transform.rotation = Quaternion.LookRotation(m_currentDirection);
+			transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
 
-        if(direction != Vector3.zero)
-        {
-            m_currentDirection = Vector3.Slerp(m_currentDirection, direction, Time.deltaTime * m_interpolation);
+			m_animator.SetFloat("MoveSpeed", direction.magnitude);
+		}
 
-            transform.rotation = Quaternion.LookRotation(m_currentDirection);
-            transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
+		JumpingAndLanding();
+	}
 
-            m_animator.SetFloat("MoveSpeed", direction.magnitude);
-        }
+	private void JumpingAndLanding()
+	{
+		bool jumpCooldownOver = (Time.time - m_jumpTimeStamp) >= m_minJumpInterval;
 
-        JumpingAndLanding();
-    }
+		if (jumpCooldownOver && m_isGrounded && Input.GetKey(KeyCode.Space))
+		{
+			m_jumpTimeStamp = Time.time;
+			m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
+		}
 
-    private void JumpingAndLanding()
-    {
-        bool jumpCooldownOver = (Time.time - m_jumpTimeStamp) >= m_minJumpInterval;
+		if (!m_wasGrounded && m_isGrounded)
+		{
+			m_animator.SetTrigger("Land");
+		}
 
-        if (jumpCooldownOver && m_isGrounded && Input.GetKey(KeyCode.Space))
-        {
-            m_jumpTimeStamp = Time.time;
-            m_rigidBody.AddForce(Vector3.up * m_jumpForce, ForceMode.Impulse);
-        }
-
-        if (!m_wasGrounded && m_isGrounded)
-        {
-            m_animator.SetTrigger("Land");
-        }
-
-        if (!m_isGrounded && m_wasGrounded)
-        {
-            m_animator.SetTrigger("Jump");
-        }
-    }
+		if (!m_isGrounded && m_wasGrounded)
+		{
+			m_animator.SetTrigger("Jump");
+		}
+	}
 }

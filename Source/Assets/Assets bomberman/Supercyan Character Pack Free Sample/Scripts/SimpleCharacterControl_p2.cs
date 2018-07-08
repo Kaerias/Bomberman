@@ -17,7 +17,8 @@ public class SimpleCharacterControl_p2 : MonoBehaviour {
 
     [SerializeField] private ControlMode m_controlMode = ControlMode.Direct;
 
-    private float m_currentV = 0;
+	private bool action = false;
+	private float m_currentV = 0;
     private float m_currentH = 0;
 
     private readonly float m_interpolation = 10;
@@ -108,20 +109,34 @@ public class SimpleCharacterControl_p2 : MonoBehaviour {
 
     private void TankUpdate()
     {
-        float v = Input.GetAxis("Vertical");
-        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical") * Time.deltaTime * 3.0f;
+        float h = Input.GetAxis("Horizontal") * Time.deltaTime * 3.0f;
 
 		//transform.position += new Vector3(h, 0, v) * m_moveSpeed;
-        m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
+		m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
         m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-        transform.position += transform.forward * m_currentV * m_moveSpeed * Time.deltaTime;
-        transform.Rotate(0, m_currentH * m_turnSpeed * Time.deltaTime, 0);
-
-        m_animator.SetFloat("MoveSpeed", m_currentV);
-
-        JumpingAndLanding();
-    }
+		transform.Translate(-1 *m_currentH, 0, -1 * m_currentV);
+		if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.D) || action)
+		{
+			/*if (Input.GetKeyDown(KeyCode.I))
+				transform.rotation = Quaternion.Euler(0, 0, 0);
+			if (Input.GetKeyDown(KeyCode.K))
+				transform.rotation = Quaternion.Euler(0, 180, 0);
+			if (Input.GetKeyDown(KeyCode.J))
+				transform.rotation = Quaternion.Euler(0, 270, 0);
+			if (Input.GetKeyDown(KeyCode.L))
+				transform.rotation = Quaternion.Euler(0, 90, 0);
+			*/
+			action = true;
+			m_animator.SetFloat("MoveSpeed", 1);
+		}
+		if (Input.GetKeyUp(KeyCode.Z) || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.Q) || Input.GetKeyUp(KeyCode.D))
+		{
+			action = false;
+			m_animator.SetFloat("MoveSpeed", 0);
+		}
+	}
 
     private void DirectUpdate()
     {
