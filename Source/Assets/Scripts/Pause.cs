@@ -5,7 +5,7 @@ using UnityEngine;
 public class Pause : MonoBehaviour
 {
 
-	bool b;
+	bool isPause;
 	[SerializeField]
 	public GameObject Button;
 	[SerializeField]
@@ -16,7 +16,7 @@ public class Pause : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
-		b = false;
+		isPause = false;
 	}
 
 	// Update is called once per frame
@@ -26,7 +26,7 @@ public class Pause : MonoBehaviour
 		{
 			if (Input.GetKeyDown(KeyCode.P))
 			{
-				if (b == false)
+				if (isPause == false)
 				{
 					Time.timeScale = 0f;
 					Game.SetActive(false);
@@ -40,7 +40,7 @@ public class Pause : MonoBehaviour
 					BackgroundPause.SetActive(false);
 					Button.SetActive(false);
 				}
-				b = !b;
+                isPause = !isPause;
 			}
 		}
 	}
