@@ -33,7 +33,7 @@ public class PutBomb : MonoBehaviour
 					{
 						Bomb = Instantiate(InitBomb, ground.transform.position, transform.rotation) as GameObject;
 						Bomb.transform.position += new Vector3(0, 1.2f, 0);
-						Bomb.GetComponent<Bomb>().Player1 = player;
+						Bomb.GetComponent<Bomb>().SetPlayer(player);
 						break;
 					}
 				}

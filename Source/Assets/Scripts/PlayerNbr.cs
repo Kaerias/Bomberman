@@ -7,11 +7,9 @@ public class PlayerNbr : MonoBehaviour
 	private int nbr;
 	private int nbrBomb;
 	private int nbrBombUse;
-	private int fireUp;
 
 	private void Start()
 	{
-		fireUp = 1;
 		nbrBombUse = 0;
 		nbrBomb = 1;
 	}
@@ -43,28 +41,15 @@ public class PlayerNbr : MonoBehaviour
 	}
 
 	public int NbrBombUse
-	{
-		get
-		{
-			return nbrBombUse;
-		}
+    {
+        get
+        {
+            return nbrBombUse;
+        }
 
-		set
-		{
-			nbrBombUse = value;
-		}
-	}
-
-	public int FireUp
-	{
-		get
-		{
-			return fireUp;
-		}
-
-		set
-		{
-			fireUp = value;
-		}
-	}
+        set
+        {
+            nbrBombUse = value;
+        }
+    }
 }
